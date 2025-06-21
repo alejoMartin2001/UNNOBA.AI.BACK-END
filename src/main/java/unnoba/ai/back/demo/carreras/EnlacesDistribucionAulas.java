@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -74,7 +73,7 @@ public class EnlacesDistribucionAulas {
       Document doc = Jsoup.connect(url).get();
 
       // Verificar si hay contenido
-      Elements tablas = doc.select("table");
+      Elements tablas = doc.select("*");
       if (tablas.isEmpty()) {
         return String.format("📅 **DISTRIBUCIÓN DE AULAS**\n\n" +
             "⚠️ No hay distribución disponible para hoy en %s.\n\n" +

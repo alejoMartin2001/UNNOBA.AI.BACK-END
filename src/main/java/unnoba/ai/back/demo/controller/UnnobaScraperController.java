@@ -255,17 +255,131 @@ public class UnnobaScraperController {
     // Endpoint específico para consultas de exámenes por mes
     @GetMapping("/examenes-mes/{mes}")
     public String getExamenesPorMes(@PathVariable String mes) throws IOException {
-        String respuesta = String.format("""
-                📝 **EXÁMENES FINALES - %s - UNNOBA**
-
-                **¿Cuándo es la mesa de finales de %s?**
-                """, mes.toUpperCase(), mes.toLowerCase());
-
         EnlacesInscripciones buscador = new EnlacesInscripciones();
-        String fechasEspecificas = buscador.extraerExamenesPorMes(mes);
+        return buscador.extraerExamenesPorMes(mes);
+    }
 
-        return respuesta + "\n" + fechasEspecificas
-                + "\n🔗 **Inscripción a finales:** https://g3w3.unnoba.edu.ar/g3w3/";
+    // Nuevo endpoint para consultas específicas de fechas
+    @GetMapping("/fechas/{tipo}")
+    public String getFechasEspecificas(@PathVariable String tipo) throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+
+        switch (tipo.toLowerCase()) {
+            case "inicio-primer-cuatrimestre":
+                return "🎓 **INICIO PRIMER CUATRIMESTRE**\n\n" +
+                        buscador.extraerFechasEspecificas("inicio_primer_cuatrimestre") +
+                        "\n📅 **Calendario completo:** https://elegi.unnoba.edu.ar/calendario/";
+
+            case "inicio-segundo-cuatrimestre":
+                return "🎓 **INICIO SEGUNDO CUATRIMESTRE**\n\n" +
+                        buscador.extraerFechasEspecificas("inicio_segundo_cuatrimestre") +
+                        "\n📅 **Calendario completo:** https://elegi.unnoba.edu.ar/calendario/";
+
+            case "fin-primer-cuatrimestre":
+                return "📚 **FIN PRIMER CUATRIMESTRE**\n\n" +
+                        buscador.extraerFechasEspecificas("fin_primer_cuatrimestre") +
+                        "\n📅 **Calendario completo:** https://elegi.unnoba.edu.ar/calendario/";
+
+            case "fin-segundo-cuatrimestre":
+                return "📚 **FIN SEGUNDO CUATRIMESTRE**\n\n" +
+                        buscador.extraerFechasEspecificas("fin_segundo_cuatrimestre") +
+                        "\n📅 **Calendario completo:** https://elegi.unnoba.edu.ar/calendario/";
+
+            case "mesas-finales":
+                return "📝 **MESAS DE EXÁMENES FINALES**\n\n" +
+                        buscador.extraerFechasEspecificas("mesas_finales") +
+                        "\n🔗 **Inscripción:** https://g3w3.unnoba.edu.ar/g3w3/";
+
+            case "inscripcion-carrera":
+                return "✅ **INSCRIPCIÓN A LA CARRERA**\n\n" +
+                        buscador.extraerFechasEspecificas("inscripcion_carrera") +
+                        "\n🔗 **Sistema SIU-Guaraní:** https://g3w3.unnoba.edu.ar/g3w3/";
+
+            case "feriados":
+                return "🎉 **FERIADOS Y DÍAS NO LABORABLES**\n\n" +
+                        buscador.extraerFechasEspecificas("feriados") +
+                        "\n📅 **Calendario completo:** https://elegi.unnoba.edu.ar/calendario/";
+
+            case "vacaciones":
+                return "❄️ **VACACIONES DE INVIERNO**\n\n" +
+                        buscador.extraerFechasEspecificas("vacaciones") +
+                        "\n📅 **Calendario completo:** https://elegi.unnoba.edu.ar/calendario/";
+
+            default:
+                return "❓ **CONSULTA NO RECONOCIDA**\n\nTipos de consulta disponibles:\n" +
+                        "• inicio-primer-cuatrimestre\n• inicio-segundo-cuatrimestre\n" +
+                        "• fin-primer-cuatrimestre\n• fin-segundo-cuatrimestre\n" +
+                        "• mesas-finales\n• inscripcion-carrera\n• feriados\n• vacaciones\n\n" +
+                        "📅 **Calendario completo:** https://elegi.unnoba.edu.ar/calendario/";
+        }
+    }
+
+    // Nuevo endpoint para consultas generales
+    @GetMapping("/consultar")
+    public String consultarEvento(@RequestParam String consulta) throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.consultarFechaEspecifica(consulta);
+    }
+
+    // Endpoints específicos para meses comunes de exámenes
+    @GetMapping("/examenes-febrero")
+    public String getExamenesFebrero() throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerExamenesPorMes("febrero");
+    }
+
+    @GetMapping("/examenes-marzo")
+    public String getExamenesMarzo() throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerExamenesPorMes("marzo");
+    }
+
+    @GetMapping("/examenes-abril")
+    public String getExamenesAbril() throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerExamenesPorMes("abril");
+    }
+
+    @GetMapping("/examenes-mayo")
+    public String getExamenesMayo() throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerExamenesPorMes("mayo");
+    }
+
+    @GetMapping("/examenes-junio")
+    public String getExamenesJunio() throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerExamenesPorMes("junio");
+    }
+
+    @GetMapping("/examenes-julio")
+    public String getExamenesJulio() throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerExamenesPorMes("julio");
+    }
+
+    @GetMapping("/examenes-agosto")
+    public String getExamenesAgosto() throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerExamenesPorMes("agosto");
+    }
+
+    @GetMapping("/examenes-septiembre")
+    public String getExamenesSeptiembre() throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerExamenesPorMes("septiembre");
+    }
+
+    @GetMapping("/examenes-noviembre")
+    public String getExamenesNoviembre() throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerExamenesPorMes("noviembre");
+    }
+
+    @GetMapping("/examenes-diciembre")
+    public String getExamenesDiciembre() throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerExamenesPorMes("diciembre");
     }
 
     @GetMapping("/feriados")
@@ -314,39 +428,8 @@ public class UnnobaScraperController {
 
     @GetMapping("/calendario-academico")
     public String getCalendarioAcademico() throws IOException {
-        String respuesta = """
-                📅 **CALENDARIO ACADÉMICO UNNOBA**
-
-                El calendario académico oficial de la UNNOBA contiene todas las fechas importantes del año lectivo.
-
-                **Acceso directo:** https://elegi.unnoba.edu.ar/calendario/
-
-                **💡 Información importante:** El calendario se actualiza regularmente, por eso es recomendable consultarlo frecuentemente.
-
-                **📋 Eventos destacados del calendario actual:**
-                """;
-
-        // Incluir información específica extraída del calendario
         EnlacesInscripciones buscador = new EnlacesInscripciones();
-        String informacionCalendario = buscador.extraerInformacionCalendario();
-
-        if (informacionCalendario != null && !informacionCalendario.trim().isEmpty()) {
-            return respuesta + "\n" + informacionCalendario;
-        } else {
-            String infoDefault = """
-                    **📚 En el calendario encontrarás:**
-                    • Fechas de inscripción a materias y finales
-                    • Inicio y fin de cuatrimestres
-                    • Períodos de exámenes (Junio, Julio, Agosto, Diciembre, Febrero)
-                    • Feriados y días no laborables
-                    • Vacaciones de invierno
-                    • Fechas límite para trámites administrativos
-                    • Períodos de confirmación de inscripción
-
-                    **💡 Nota:** Para información detallada y actualizada, consultá directamente el calendario académico.
-                    """;
-            return respuesta + "\n" + infoDefault;
-        }
+        return buscador.extraerInformacionCalendario();
     }
 
     // Endpoint para distribución de aulas específica
@@ -443,9 +526,18 @@ public class UnnobaScraperController {
         for (String url : listaEnlaces) {
             try {
                 Document doc = Jsoup.connect(url).get();
-                Elements elementos = doc.select("p,li,ul,h1,h2,h3,h4"); // Solo texto útil
+                Elements elementos = doc.select("*");
+                Set<String> textosUnicos = new LinkedHashSet<>();
+
                 for (Element elemento : elementos) {
-                    texto.append(elemento.text()).append(" ");
+                    String contenido = elemento.ownText().trim();
+                    if (!contenido.isEmpty()) {
+                        textosUnicos.add(contenido);
+                    }
+                }
+
+                for (String linea : textosUnicos) {
+                    texto.append(linea).append(" ");
                 }
             } catch (IOException e) {
                 System.out.println("Error al acceder a: " + url);
@@ -454,5 +546,4 @@ public class UnnobaScraperController {
 
         return texto.toString();
     }
-
 }
