@@ -117,7 +117,6 @@ public class UnnobaScraperController {
         String respuesta = """
                 📚 **INSCRIPCIÓN A MATERIAS - UNNOBA**
 
-                **¿Cómo me inscribo a las materias?**
                 Para inscribirte a las materias en la UNNOBA, debés acceder al sistema SIU-Guaraní durante el período de inscripción establecido en el calendario académico oficial.
 
                 **Sistema de Inscripción:** https://g3w3.unnoba.edu.ar/g3w3/
@@ -186,8 +185,6 @@ public class UnnobaScraperController {
     public String getInicioCuatrimestres() throws IOException {
         String respuesta = """
                 🎓 **INICIO DE CUATRIMESTRES - UNNOBA**
-
-                **¿Cuándo empiezan las clases?**
                 """;
 
         EnlacesInscripciones buscador = new EnlacesInscripciones();
@@ -200,8 +197,6 @@ public class UnnobaScraperController {
     public String getFinCuatrimestres() throws IOException {
         String respuesta = """
                 📚 **FIN DE CUATRIMESTRES - UNNOBA**
-
-                **¿Cuándo terminan las clases?**
                 """;
 
         EnlacesInscripciones buscador = new EnlacesInscripciones();
@@ -214,8 +209,6 @@ public class UnnobaScraperController {
     public String getExamenesFinales() throws IOException {
         String respuesta = """
                 📝 **EXÁMENES FINALES - UNNOBA**
-
-                **¿Cuándo son las mesas de examen?**
                 """;
 
         EnlacesInscripciones buscador = new EnlacesInscripciones();
@@ -228,8 +221,6 @@ public class UnnobaScraperController {
     public String getVacacionesInvierno() throws IOException {
         String respuesta = """
                 ❄️ **VACACIONES DE INVIERNO - UNNOBA**
-
-                **¿Cuándo son las vacaciones de invierno?**
                 """;
 
         EnlacesInscripciones buscador = new EnlacesInscripciones();
@@ -242,8 +233,6 @@ public class UnnobaScraperController {
     public String getConfirmacionInscripcion() throws IOException {
         String respuesta = """
                 ✅ **CONFIRMACIÓN DE INSCRIPCIÓN - UNNOBA**
-
-                **¿Hasta cuándo puedo confirmar mi inscripción?**
                 """;
 
         EnlacesInscripciones buscador = new EnlacesInscripciones();
@@ -321,7 +310,13 @@ public class UnnobaScraperController {
         return buscador.consultarFechaEspecifica(consulta);
     }
 
-    // Endpoints específicos para meses comunes de exámenes
+    // Endpoints específicos para meses de exámenes (incluye meses sin mesas)
+    @GetMapping("/examenes-enero")
+    public String getExamenesEnero() throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerExamenesPorMes("enero");
+    }
+
     @GetMapping("/examenes-febrero")
     public String getExamenesFebrero() throws IOException {
         EnlacesInscripciones buscador = new EnlacesInscripciones();
@@ -368,6 +363,12 @@ public class UnnobaScraperController {
     public String getExamenesSeptiembre() throws IOException {
         EnlacesInscripciones buscador = new EnlacesInscripciones();
         return buscador.extraerExamenesPorMes("septiembre");
+    }
+
+    @GetMapping("/examenes-octubre")
+    public String getExamenesOctubre() throws IOException {
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerExamenesPorMes("octubre");
     }
 
     @GetMapping("/examenes-noviembre")
@@ -442,11 +443,7 @@ public class UnnobaScraperController {
         } else {
             return """
                     🏢 **DISTRIBUCIÓN DE AULAS - UNNOBA**
-
-                    📍 **¿Dónde se cursa cada materia?**
-
                     La distribución de aulas puede consultarse a través de los siguientes enlaces:
-
                     **📚 Junín:**
                     • **Distribución de aulas - Junín:** https://unnoba.edu.ar/distribucion-aulas/junin
 
