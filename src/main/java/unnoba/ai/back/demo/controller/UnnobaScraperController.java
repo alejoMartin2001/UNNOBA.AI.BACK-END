@@ -113,70 +113,30 @@ public class UnnobaScraperController {
 
     @GetMapping("/inscripcion-materias")
     public String getInscripcionMaterias() throws IOException {
-        // Respuesta predefinida con enlaces bien formateados
-        String respuesta = """
-                📚 **INSCRIPCIÓN A MATERIAS - UNNOBA**
-
-                Para inscribirte a las materias en la UNNOBA, debés acceder al sistema SIU-Guaraní durante el período de inscripción establecido en el calendario académico oficial.
-
-                **Sistema de Inscripción:** https://g3w3.unnoba.edu.ar/g3w3/
-
-                📅 **Fechas de inscripción:** https://elegi.unnoba.edu.ar/calendario/
-
-                **Requisitos importantes:**
-                ✅ Tener condición de alumno regular
-                ✅ Respetar las fechas establecidas en el calendario
-                ✅ Verificar correlatividades de las materias
-                ✅ Contar con tu usuario y contraseña institucional
-
-                **💡 Sistema de Regularidad:**
-                La regularidad se verifica a fines de marzo de cada año. Para mantener la condición de alumno regular necesitás sumar al menos **4 puntos**:
-
-                • **1 punto** = Cada materia cursada y aprobada
-                • **2 puntos** = Cada examen final aprobado
-
-                **Ejemplos:**
-                • 4 materias cursadas y aprobadas = 4 puntos ✅
-                • 2 materias cursadas + 1 final aprobado = 4 puntos ✅
-                • 2 finales aprobados = 4 puntos ✅
-
-                **📅 Fechas importantes del calendario:**
-                """;
-
-        // Incluir información específica extraída del calendario
+        // Obtener fechas dinámicamente del calendario académico
         EnlacesInscripciones buscador = new EnlacesInscripciones();
-        String informacionCalendario = buscador.extraerInformacionCalendario();
+        return buscador.extraerFechasInscripcionMaterias();
+    }
 
-        // Filtrar información relevante a inscripciones
-        StringBuilder inscripciones = new StringBuilder();
-        String[] lineas = informacionCalendario.split("\n");
-        boolean enSeccionInscripciones = false;
-        boolean enSeccionExamenes = false;
+    @GetMapping("/inscripcion-materias-primer-cuatrimestre")
+    public String getInscripcionMateriasPrimerCuatrimestre() throws IOException {
+        // Obtener fechas dinámicamente del calendario académico
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerFechasInscripcionPrimerCuatrimestre();
+    }
 
-        for (String linea : lineas) {
-            if (linea.contains("📝 **INSCRIPCIONES")) {
-                enSeccionInscripciones = true;
-                inscripciones.append(linea).append("\n");
-            } else if (linea.contains("📋 **EXÁMENES")) {
-                enSeccionInscripciones = false;
-                enSeccionExamenes = true;
-                inscripciones.append(linea).append("\n");
-            } else if ((enSeccionInscripciones || enSeccionExamenes) && linea.startsWith("•")) {
-                inscripciones.append(linea).append("\n");
-            } else if ((enSeccionInscripciones || enSeccionExamenes) && linea.contains("**")
-                    && !linea.contains("INSCRIPCIONES") && !linea.contains("EXÁMENES")) {
-                break;
-            }
-        }
+    @GetMapping("/inscripcion-materias-segundo-cuatrimestre")
+    public String getInscripcionMateriasSegundoCuatrimestre() throws IOException {
+        // Obtener fechas dinámicamente del calendario académico
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerFechasInscripcionSegundoCuatrimestre();
+    }
 
-        if (inscripciones.length() == 0) {
-            inscripciones.append("**Próximas fechas:**\n");
-            inscripciones
-                    .append("• Consultá el calendario académico para ver las fechas de inscripción actualizadas\n");
-            inscripciones.append("• Las inscripciones abren según el cronograma del calendario oficial\n");
-        }
-
-        return respuesta + "\n" + inscripciones.toString();
+    @GetMapping("/inscripcion-materias-detallada")
+    public String getInscripcionMateriasDetallada() throws IOException {
+        // Obtener información detallada dinámicamente del calendario académico
+        EnlacesInscripciones buscador = new EnlacesInscripciones();
+        return buscador.extraerFechasInscripcionMateriasDetallada();
     }
 
     // Endpoints específicos para preguntas frecuentes del calendario
@@ -221,12 +181,21 @@ public class UnnobaScraperController {
     public String getVacacionesInvierno() throws IOException {
         String respuesta = """
                 ❄️ **VACACIONES DE INVIERNO - UNNOBA**
+
+                Para obtener las fechas exactas del receso invernal en la UNNOBA, te recomiendo consultar el calendario académico oficial de la universidad. La información allí es siempre la más precisa y actualizada.
+
+                Por desgracia, no tengo acceso en tiempo real a esa información específica.
+
+                📅 **Calendario Académico Oficial:** https://elegi.unnoba.edu.ar/calendario/
+
+                **💡 En el calendario académico encontrarás:**
+                • Fechas exactas del receso invernal
+                • Duración de las vacaciones
+                • Reinicio de actividades académicas
+                • Otras fechas importantes del año lectivo
                 """;
 
-        EnlacesInscripciones buscador = new EnlacesInscripciones();
-        String fechas = buscador.extraerFechasEspecificas("vacaciones");
-
-        return respuesta + "\n" + fechas + "\n📅 **Calendario completo:** https://elegi.unnoba.edu.ar/calendario/";
+        return respuesta;
     }
 
     @GetMapping("/confirmacion-inscripcion")
@@ -285,14 +254,28 @@ public class UnnobaScraperController {
                         "\n🔗 **Sistema SIU-Guaraní:** https://g3w3.unnoba.edu.ar/g3w3/";
 
             case "feriados":
-                return "🎉 **FERIADOS Y DÍAS NO LABORABLES**\n\n" +
-                        buscador.extraerFechasEspecificas("feriados") +
-                        "\n📅 **Calendario completo:** https://elegi.unnoba.edu.ar/calendario/";
+                return "🎉 **FERIADOS Y DÍAS NO LABORABLES - UNNOBA**\n\n" +
+                        "Para obtener la información exacta sobre los feriados en la UNNOBA, te recomiendo consultar el calendario académico oficial de la universidad. La información allí es siempre la más precisa y actualizada.\n\n"
+                        +
+                        "Por desgracia, no tengo acceso en tiempo real a esa información específica.\n\n" +
+                        "📅 **Calendario Académico Oficial:** https://elegi.unnoba.edu.ar/calendario/\n\n" +
+                        "**💡 En el calendario académico encontrarás:**\n" +
+                        "• Feriados nacionales\n" +
+                        "• Días no laborables universitarios\n" +
+                        "• Recesos académicos\n" +
+                        "• Fechas especiales de la universidad";
 
             case "vacaciones":
-                return "❄️ **VACACIONES DE INVIERNO**\n\n" +
-                        buscador.extraerFechasEspecificas("vacaciones") +
-                        "\n📅 **Calendario completo:** https://elegi.unnoba.edu.ar/calendario/";
+                return "❄️ **VACACIONES DE INVIERNO - UNNOBA**\n\n" +
+                        "Para obtener las fechas exactas del receso invernal en la UNNOBA, te recomiendo consultar el calendario académico oficial de la universidad. La información allí es siempre la más precisa y actualizada.\n\n"
+                        +
+                        "Por desgracia, no tengo acceso en tiempo real a esa información específica.\n\n" +
+                        "📅 **Calendario Académico Oficial:** https://elegi.unnoba.edu.ar/calendario/\n\n" +
+                        "**💡 En el calendario académico encontrarás:**\n" +
+                        "• Fechas exactas del receso invernal\n" +
+                        "• Duración de las vacaciones\n" +
+                        "• Reinicio de actividades académicas\n" +
+                        "• Otras fechas importantes del año lectivo";
 
             default:
                 return "❓ **CONSULTA NO RECONOCIDA**\n\nTipos de consulta disponibles:\n" +
@@ -383,50 +366,6 @@ public class UnnobaScraperController {
         return buscador.extraerExamenesPorMes("diciembre");
     }
 
-    @GetMapping("/feriados")
-    public String getFeriados() throws IOException {
-        // Respuesta predefinida con enlace bien formateado
-        String respuesta = """
-                🎉 **FERIADOS Y DÍAS NO LABORABLES - UNNOBA**
-
-                Para conocer los feriados de la UNNOBA en el año actual, consultá el calendario académico oficial.
-
-                📅 https://elegi.unnoba.edu.ar/calendario/
-
-                **Información actualizada del calendario:**
-                """;
-
-        // Incluir información específica extraída del calendario
-        EnlacesInscripciones buscador = new EnlacesInscripciones();
-        String informacionCalendario = buscador.extraerInformacionCalendario();
-
-        // Filtrar solo información relevante a feriados
-        StringBuilder feriados = new StringBuilder();
-        String[] lineas = informacionCalendario.split("\n");
-        boolean enSeccionFeriados = false;
-
-        for (String linea : lineas) {
-            if (linea.contains("🎉 **FERIADOS")) {
-                enSeccionFeriados = true;
-                feriados.append(linea).append("\n");
-            } else if (enSeccionFeriados && linea.startsWith("•")) {
-                feriados.append(linea).append("\n");
-            } else if (enSeccionFeriados && linea.trim().isEmpty()) {
-                break;
-            } else if (enSeccionFeriados && linea.contains("**")) {
-                break;
-            }
-        }
-
-        if (feriados.length() == 0) {
-            feriados.append("**Feriados próximos:**\n");
-            feriados.append("• Consultá el calendario académico para ver las fechas actualizadas\n");
-            feriados.append("• Los feriados incluyen días nacionales y días sin actividad académica\n");
-        }
-
-        return respuesta + "\n" + feriados.toString();
-    }
-
     @GetMapping("/calendario-academico")
     public String getCalendarioAcademico() throws IOException {
         EnlacesInscripciones buscador = new EnlacesInscripciones();
@@ -515,6 +454,56 @@ public class UnnobaScraperController {
         EnlacesGenerales buscador = new EnlacesGenerales();
         Set<String> listaEnlaces = buscador.tecnicaturaProduccionAlimentos();
         return getTextoUrls(listaEnlaces);
+    }
+
+    @GetMapping("/regularidad-estudiantes")
+    public String getRegularidadEstudiantes() throws IOException {
+        String respuesta = """
+                💡 **SISTEMA DE REGULARIDAD - UNNOBA**
+
+                **¿Cuándo se verifica la regularidad?**
+                La regularidad se verifica a fines de marzo de cada año. Para mantener la condición de alumno regular necesitás sumar al menos **4 puntos**.
+
+                **¿Cómo se suman puntos?**
+                • **1 punto** = Cada materia cursada y aprobada
+                • **2 puntos** = Cada examen final aprobado
+
+                **Ejemplos para mantener la regularidad:**
+                • Cursar y aprobar 4 materias = 4 puntos ✅
+                • Cursar 2 materias + aprobar 1 final = 4 puntos ✅
+                • Aprobar 2 exámenes finales = 4 puntos ✅
+
+                **¿Qué pasa si no llego a los 4 puntos?**
+                Si no alcanzás los 4 puntos requeridos, perdés la condición de alumno regular, pero podés seguir cursando reinscribiéndote a la carrera.
+
+                **¿Cuántas veces puedo reinscribirme?**
+                Podés reinscribirte hasta 3 veces. Si superás ese límite, perdés todas las materias aprobadas.
+
+                🔗 **Sistema SIU-Guaraní:** https://g3w3.unnoba.edu.ar/g3w3/
+                """;
+
+        return respuesta;
+    }
+
+    @GetMapping("/feriados")
+    public String getFeriados() throws IOException {
+        String respuesta = """
+                🎉 **FERIADOS Y DÍAS NO LABORABLES - UNNOBA**
+
+                Para obtener la información exacta sobre los feriados en la UNNOBA, te recomiendo consultar el calendario académico oficial de la universidad. La información allí es siempre la más precisa y actualizada.
+
+                Por desgracia, no tengo acceso en tiempo real a esa información específica.
+
+                📅 **Calendario Académico Oficial:** https://elegi.unnoba.edu.ar/calendario/
+
+                **💡 En el calendario académico encontrarás:**
+                • Feriados nacionales
+                • Días no laborables universitarios
+                • Recesos académicos
+                • Fechas especiales de la universidad
+                """;
+
+        return respuesta;
     }
 
     public String getTextoUrls(Set<String> listaEnlaces) {

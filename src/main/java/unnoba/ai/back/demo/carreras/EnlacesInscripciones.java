@@ -283,10 +283,14 @@ public class EnlacesInscripciones {
           StringBuilder textoCompleto = new StringBuilder(textoEvento);
 
           // Buscar elementos hermanos que pueden contener detalles adicionales
-          Elements detalles = evento.parent().select("*:contains(Detalles), *:contains(Inicio:), *:contains(Final:)");
-          for (Element detalle : detalles) {
-            if (!detalle.text().equals(textoEvento)) {
-              textoCompleto.append(" ").append(detalle.text());
+          // Verificar que el elemento padre no sea null antes de acceder a él
+          Element padre = evento.parent();
+          if (padre != null) {
+            Elements detalles = padre.select("*:contains(Detalles), *:contains(Inicio:), *:contains(Final:)");
+            for (Element detalle : detalles) {
+              if (!detalle.text().equals(textoEvento)) {
+                textoCompleto.append(" ").append(detalle.text());
+              }
             }
           }
 
@@ -575,8 +579,8 @@ public class EnlacesInscripciones {
 
       // Fecha de inicio de inscripción
       if (fechasCalendario.fechaInicioInscripcion != null) {
-        resultado.append("📝 **Fecha de inicio de inscripción:** ").append(fechasCalendario.fechaInicioInscripcion)
-            .append("\n\n");
+        resultado.append("📝 **Fecha de inicio de inscripción:** ").append(fechasCalendario.fechaInicioInscripcion);
+        resultado.append("\n\n");
       } else {
         resultado.append("📝 **Fecha de inicio de inscripción:** Consultar calendario académico\n\n");
       }
@@ -1632,5 +1636,513 @@ public class EnlacesInscripciones {
     } catch (IOException e) {
       return "Error al consultar el calendario. Accedé directamente en: https://elegi.unnoba.edu.ar/calendario/";
     }
+  }
+
+  // Clase auxiliar para almacenar fechas de inscripción a materias
+  private static class FechasInscripcionMaterias {
+    String fechaInicioRegular;
+    String fechaFinRegular;
+    String fechaInicioPendientes;
+    String fechaFinPendientes;
+    String fechaInicioRegularSegundo;
+    String fechaFinRegularSegundo;
+    String fechaInicioPendientesSegundo;
+    String fechaFinPendientesSegundo;
+    String urlRegular;
+    String urlPendientes;
+  }
+
+  // Método principal para extraer fechas de inscripción a materias dinámicamente
+  public String extraerFechasInscripcionMaterias() {
+    try {
+      StringBuilder resultado = new StringBuilder();
+      resultado.append("📚 **INSCRIPCIÓN A MATERIAS - UNNOBA**\n\n");
+      resultado.append("📝 **PERÍODOS DE INSCRIPCIÓN 2025:**\n\n");
+
+      // Extraer fechas dinámicamente del calendario académico
+      FechasInscripcionMaterias fechas = extraerFechasDelCalendarioInscripciones();
+
+      // Mostrar fechas para asignaturas regulares
+      resultado.append("🟢 **Para asignaturas en estado REGULAR:**\n");
+
+      // Primer cuatrimestre
+      if (fechas.fechaInicioRegular != null && fechas.fechaFinRegular != null) {
+        resultado.append("• **").append(fechas.fechaInicioRegular).append(" al ").append(fechas.fechaFinRegular)
+            .append("** - Primer cuatrimestre\n");
+      } else {
+        resultado.append("• **24 al 28 de febrero de 2025** - Primer cuatrimestre (consultar calendario)\n");
+      }
+
+      // Segundo cuatrimestre
+      if (fechas.fechaInicioRegularSegundo != null && fechas.fechaFinRegularSegundo != null) {
+        resultado.append("• **").append(fechas.fechaInicioRegularSegundo).append(" al ")
+            .append(fechas.fechaFinRegularSegundo).append("** - Segundo cuatrimestre\n\n");
+      } else {
+        resultado.append("• **4 al 8 de agosto de 2025** - Segundo cuatrimestre (consultar calendario)\n\n");
+      }
+
+      // Mostrar fechas para asignaturas pendientes/condicionales
+      resultado.append("🟡 **Para asignaturas en estado PENDIENTE/CONDICIONALES:**\n");
+
+      // Primer cuatrimestre
+      if (fechas.fechaInicioPendientes != null && fechas.fechaFinPendientes != null) {
+        resultado.append("• **").append(fechas.fechaInicioPendientes).append(" al ").append(fechas.fechaFinPendientes)
+            .append("** - Primer cuatrimestre\n");
+      } else {
+        resultado.append("• **3 al 7 de marzo de 2025** - Primer cuatrimestre (consultar calendario)\n");
+      }
+
+      // Segundo cuatrimestre
+      if (fechas.fechaInicioPendientesSegundo != null && fechas.fechaFinPendientesSegundo != null) {
+        resultado.append("• **").append(fechas.fechaInicioPendientesSegundo).append(" al ")
+            .append(fechas.fechaFinPendientesSegundo).append("** - Segundo cuatrimestre\n\n");
+      } else {
+        resultado.append("• **11 al 15 de agosto de 2025** - Segundo cuatrimestre (consultar calendario)\n\n");
+      }
+
+      resultado.append("🖥️ **Sistema de inscripción:** [SIU-Guaraní](https://g3w3.unnoba.edu.ar/g3w3/)\n");
+      resultado.append("📅 **Calendario completo:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendario/)\n");
+
+      return resultado.toString();
+
+    } catch (Exception e) {
+      System.err.println("Error extrayendo fechas de inscripción a materias: " + e.getMessage());
+      return extraerFechasInscripcionMateriasGenerico();
+    }
+  }
+
+  // Método auxiliar para extraer fechas del calendario académico de inscripciones
+  private FechasInscripcionMaterias extraerFechasDelCalendarioInscripciones() {
+    FechasInscripcionMaterias fechas = new FechasInscripcionMaterias();
+
+    // URLs específicas del calendario académico para inscripciones
+    String urlRegularPrimero = "https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-regular-3/";
+    String urlRegularSegundo = "https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-regular-4/";
+    String urlPendientesPrimero = "https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-pendientes-condicionales-2/";
+    String urlPendientesSegundo = "https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-pendiente-condicionales-2/";
+
+    try {
+      // Extraer fechas para asignaturas regulares - primer cuatrimestre
+      System.out.println("Extrayendo fechas de inscripción regulares primer cuatrimestre...");
+      RangoFechas fechasRegularPrimero = extraerFechasDeUrl(urlRegularPrimero);
+      if (fechasRegularPrimero != null) {
+        fechas.fechaInicioRegular = fechasRegularPrimero.inicio;
+        fechas.fechaFinRegular = fechasRegularPrimero.fin;
+      }
+
+      // Extraer fechas para asignaturas regulares - segundo cuatrimestre
+      System.out.println("Extrayendo fechas de inscripción regulares segundo cuatrimestre...");
+      RangoFechas fechasRegularSegundo = extraerFechasDeUrl(urlRegularSegundo);
+      if (fechasRegularSegundo != null) {
+        fechas.fechaInicioRegularSegundo = fechasRegularSegundo.inicio;
+        fechas.fechaFinRegularSegundo = fechasRegularSegundo.fin;
+      }
+
+      // Extraer fechas para asignaturas pendientes - primer cuatrimestre
+      System.out.println("Extrayendo fechas de inscripción pendientes primer cuatrimestre...");
+      RangoFechas fechasPendientesPrimero = extraerFechasDeUrl(urlPendientesPrimero);
+      if (fechasPendientesPrimero != null) {
+        fechas.fechaInicioPendientes = fechasPendientesPrimero.inicio;
+        fechas.fechaFinPendientes = fechasPendientesPrimero.fin;
+      }
+
+      // Extraer fechas para asignaturas pendientes - segundo cuatrimestre
+      System.out.println("Extrayendo fechas de inscripción pendientes segundo cuatrimestre...");
+      RangoFechas fechasPendientesSegundo = extraerFechasDeUrl(urlPendientesSegundo);
+      if (fechasPendientesSegundo != null) {
+        fechas.fechaInicioPendientesSegundo = fechasPendientesSegundo.inicio;
+        fechas.fechaFinPendientesSegundo = fechasPendientesSegundo.fin;
+      }
+
+    } catch (Exception e) {
+      System.err.println("Error extrayendo fechas del calendario de inscripciones: " + e.getMessage());
+    }
+
+    return fechas;
+  }
+
+  // Método auxiliar para extraer rango de fechas de una URL específica
+  private RangoFechas extraerFechasDeUrl(String url) {
+    try {
+      Document doc = Jsoup.connect(url)
+          .timeout(15000)
+          .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+          .get();
+
+      String textoCompleto = doc.text();
+      System.out.println("Analizando URL: " + url);
+
+      // Buscar patrones de fechas comunes en inscripciones
+      // Patrón 1: "24 al 28 de febrero"
+      Pattern patron1 = Pattern.compile(
+          "(\\d{1,2})\\s+al\\s+(\\d{1,2})\\s+de\\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(?:\\s+de\\s+(\\d{4}))?",
+          Pattern.CASE_INSENSITIVE);
+      Matcher matcher1 = patron1.matcher(textoCompleto);
+
+      if (matcher1.find()) {
+        String diaInicio = matcher1.group(1);
+        String diaFin = matcher1.group(2);
+        String mes = matcher1.group(3);
+        String año = matcher1.group(4) != null ? matcher1.group(4) : "2025";
+
+        String numeroMes = convertirMesANumero(mes.toLowerCase());
+        if (numeroMes != null) {
+          String fechaInicio = String.format("%02d/%s/%s", Integer.parseInt(diaInicio), numeroMes, año);
+          String fechaFin = String.format("%02d/%s/%s", Integer.parseInt(diaFin), numeroMes, año);
+          System.out.println("Fechas encontradas: " + fechaInicio + " - " + fechaFin);
+          return new RangoFechas(fechaInicio, fechaFin);
+        }
+      }
+
+      // Patrón 2: "febrero 24 - febrero 28"
+      Pattern patron2 = Pattern.compile(
+          "(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\\s+(\\d{1,2})\\s*[-–]\\s*(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\\s+(\\d{1,2})",
+          Pattern.CASE_INSENSITIVE);
+      Matcher matcher2 = patron2.matcher(textoCompleto);
+
+      if (matcher2.find()) {
+        String mesInicio = matcher2.group(1);
+        String diaInicio = matcher2.group(2);
+        String mesFin = matcher2.group(3);
+        String diaFin = matcher2.group(4);
+
+        String numeroMesInicio = convertirMesANumero(mesInicio.toLowerCase());
+        String numeroMesFin = convertirMesANumero(mesFin.toLowerCase());
+
+        if (numeroMesInicio != null && numeroMesFin != null) {
+          String fechaInicio = String.format("%02d/%s/2025", Integer.parseInt(diaInicio), numeroMesInicio);
+          String fechaFin = String.format("%02d/%s/2025", Integer.parseInt(diaFin), numeroMesFin);
+          System.out.println("Fechas encontradas (patrón 2): " + fechaInicio + " - " + fechaFin);
+          return new RangoFechas(fechaInicio, fechaFin);
+        }
+      }
+
+      // Patrón 3: Buscar en títulos específicos
+      Elements titulos = doc.select("h1, h2, h3, h4");
+      for (Element titulo : titulos) {
+        String textoTitulo = titulo.text();
+        RangoFechas fechasEnTitulo = buscarFechasEnTexto(textoTitulo);
+        if (fechasEnTitulo != null) {
+          return fechasEnTitulo;
+        }
+      }
+
+    } catch (Exception e) {
+      System.err.println("Error extrayendo fechas de URL " + url + ": " + e.getMessage());
+    }
+
+    return null;
+  }
+
+  // Método auxiliar para buscar fechas en un texto específico
+  private RangoFechas buscarFechasEnTexto(String texto) {
+    // Implementar búsqueda de patrones de fechas en texto
+    Pattern patron = Pattern.compile(
+        "(\\d{1,2})\\s+al\\s+(\\d{1,2})\\s+de\\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)",
+        Pattern.CASE_INSENSITIVE);
+    Matcher matcher = patron.matcher(texto);
+
+    if (matcher.find()) {
+      String diaInicio = matcher.group(1);
+      String diaFin = matcher.group(2);
+      String mes = matcher.group(3);
+
+      String numeroMes = convertirMesANumero(mes.toLowerCase());
+      if (numeroMes != null) {
+        String fechaInicio = String.format("%02d/%s/2025", Integer.parseInt(diaInicio), numeroMes);
+        String fechaFin = String.format("%02d/%s/2025", Integer.parseInt(diaFin), numeroMes);
+        return new RangoFechas(fechaInicio, fechaFin);
+      }
+    }
+
+    return null;
+  }
+
+  // Método de fallback cuando falla el web scraping
+  private String extraerFechasInscripcionMateriasGenerico() {
+    return """
+        📚 **INSCRIPCIÓN A MATERIAS - UNNOBA**
+
+        📝 **PERÍODOS DE INSCRIPCIÓN 2025:**
+
+        🟢 **Para asignaturas en estado REGULAR:**
+        • **24 al 28 de febrero de 2025** - Primer cuatrimestre
+        • **4 al 8 de agosto de 2025** - Segundo cuatrimestre
+
+        🟡 **Para asignaturas en estado PENDIENTE/CONDICIONALES:**
+        • **3 al 7 de marzo de 2025** - Primer cuatrimestre
+        • **11 al 15 de agosto de 2025** - Segundo cuatrimestre
+
+        🖥️ **Sistema de inscripción:** [SIU-Guaraní](https://g3w3.unnoba.edu.ar/g3w3/)
+        📅 **Calendario completo:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendario/)
+
+        ⚠️ **Nota:** Fechas de referencia. Consultá el calendario académico para información actualizada.
+        """;
+  }
+
+  // Método específico para primer cuatrimestre
+  public String extraerFechasInscripcionPrimerCuatrimestre() {
+    try {
+      StringBuilder resultado = new StringBuilder();
+      resultado.append("📝 **PERÍODOS DE INSCRIPCIÓN PRIMER CUATRIMESTRE 2025:**\n\n");
+
+      FechasInscripcionMaterias fechas = extraerFechasDelCalendarioInscripciones();
+
+      // Fechas regulares
+      resultado.append("🟢 **Para asignaturas en estado REGULAR:**\n");
+      if (fechas.fechaInicioRegular != null && fechas.fechaFinRegular != null) {
+        resultado.append("• **").append(fechas.fechaInicioRegular).append(" al ").append(fechas.fechaFinRegular)
+            .append("** - Primer cuatrimestre\n\n");
+      } else {
+        resultado.append("• **24 al 28 de febrero de 2025** - Primer cuatrimestre\n\n");
+      }
+
+      // Fechas pendientes
+      resultado.append("🟡 **Para asignaturas en estado PENDIENTE/CONDICIONALES:**\n");
+      if (fechas.fechaInicioPendientes != null && fechas.fechaFinPendientes != null) {
+        resultado.append("• **").append(fechas.fechaInicioPendientes).append(" al ").append(fechas.fechaFinPendientes)
+            .append("** - Primer cuatrimestre\n\n");
+      } else {
+        resultado.append("• **3 al 7 de marzo de 2025** - Primer cuatrimestre\n\n");
+      }
+
+      resultado.append("🖥️ **Sistema de inscripción:** [SIU-Guaraní](https://g3w3.unnoba.edu.ar/g3w3/)\n");
+      resultado.append("📅 **Calendario completo:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendario/)\n");
+
+      return resultado.toString();
+
+    } catch (Exception e) {
+      System.err.println("Error extrayendo fechas primer cuatrimestre: " + e.getMessage());
+      return extraerFechasInscripcionPrimerCuatrimestreGenerico();
+    }
+  }
+
+  // Método específico para segundo cuatrimestre
+  public String extraerFechasInscripcionSegundoCuatrimestre() {
+    try {
+      StringBuilder resultado = new StringBuilder();
+      resultado.append("📝 **PERÍODOS DE INSCRIPCIÓN SEGUNDO CUATRIMESTRE 2025:**\n\n");
+
+      FechasInscripcionMaterias fechas = extraerFechasDelCalendarioInscripciones();
+
+      // Fechas regulares segundo cuatrimestre
+      resultado.append("🟢 **Para asignaturas en estado REGULAR:**\n");
+      if (fechas.fechaInicioRegularSegundo != null && fechas.fechaFinRegularSegundo != null) {
+        resultado.append("• **").append(fechas.fechaInicioRegularSegundo).append(" al ")
+            .append(fechas.fechaFinRegularSegundo).append("** - Segundo cuatrimestre\n\n");
+      } else {
+        resultado.append("• **4 al 8 de agosto de 2025** - Segundo cuatrimestre\n\n");
+      }
+
+      // Fechas pendientes segundo cuatrimestre
+      resultado.append("🟡 **Para asignaturas en estado PENDIENTE/CONDICIONALES:**\n");
+      if (fechas.fechaInicioPendientesSegundo != null && fechas.fechaFinPendientesSegundo != null) {
+        resultado.append("• **").append(fechas.fechaInicioPendientesSegundo).append(" al ")
+            .append(fechas.fechaFinPendientesSegundo).append("** - Segundo cuatrimestre\n\n");
+      } else {
+        resultado.append("• **11 al 15 de agosto de 2025** - Segundo cuatrimestre\n\n");
+      }
+
+      resultado.append("🖥️ **Sistema de inscripción:** [SIU-Guaraní](https://g3w3.unnoba.edu.ar/g3w3/)\n");
+      resultado.append("📅 **Calendario completo:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendario/)\n");
+
+      return resultado.toString();
+
+    } catch (Exception e) {
+      System.err.println("Error extrayendo fechas segundo cuatrimestre: " + e.getMessage());
+      return extraerFechasInscripcionSegundoCuatrimestreGenerico();
+    }
+  }
+
+  // Métodos de fallback para cuatrimestres específicos
+  private String extraerFechasInscripcionPrimerCuatrimestreGenerico() {
+    return """
+        📝 **PERÍODOS DE INSCRIPCIÓN PRIMER CUATRIMESTRE 2025:**
+
+        🟢 **Para asignaturas en estado REGULAR:**
+        • **24 al 28 de febrero de 2025** - Primer cuatrimestre
+
+        🟡 **Para asignaturas en estado PENDIENTE/CONDICIONALES:**
+        • **3 al 7 de marzo de 2025** - Primer cuatrimestre
+
+        🖥️ **Sistema de inscripción:** [SIU-Guaraní](https://g3w3.unnoba.edu.ar/g3w3/)
+        📅 **Calendario completo:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendario/)
+        """;
+  }
+
+  private String extraerFechasInscripcionSegundoCuatrimestreGenerico() {
+    return """
+        📝 **PERÍODOS DE INSCRIPCIÓN SEGUNDO CUATRIMESTRE 2025:**
+
+        🟢 **Para asignaturas en estado REGULAR:**
+        • **4 al 8 de agosto de 2025** - Segundo cuatrimestre
+
+        🟡 **Para asignaturas en estado PENDIENTE/CONDICIONALES:**
+        • **11 al 15 de agosto de 2025** - Segundo cuatrimestre
+
+        🖥️ **Sistema de inscripción:** [SIU-Guaraní](https://g3w3.unnoba.edu.ar/g3w3/)
+        📅 **Calendario completo:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendario/)
+        """;
+  }
+
+  // Método para información detallada de inscripciones (incluye regularidad,
+  // requisitos, etc.)
+  public String extraerFechasInscripcionMateriasDetallada() {
+    try {
+      StringBuilder resultado = new StringBuilder();
+      resultado.append("📚 **INSCRIPCIÓN A MATERIAS - INFORMACIÓN DETALLADA**\n\n");
+
+      resultado.append(
+          "Para inscribirte a las materias en la UNNOBA, debés acceder al sistema SIU-Guaraní durante el período de inscripción establecido en el calendario académico oficial.\n\n");
+
+      resultado.append("**Requisitos importantes:**\n");
+      resultado.append("✅ Tener condición de alumno regular\n");
+      resultado.append("✅ Respetar las fechas establecidas en el calendario\n");
+      resultado.append("✅ Verificar correlatividades de las materias\n");
+      resultado.append("✅ Contar con tu usuario y contraseña institucional\n\n");
+
+      resultado.append("**💡 Sistema de Regularidad:**\n");
+      resultado.append(
+          "La regularidad se verifica a fines de marzo de cada año. Para mantener la condición de alumno regular necesitás sumar al menos **4 puntos**:\n\n");
+
+      resultado.append("• **1 punto** = Cada materia cursada y aprobada\n");
+      resultado.append("• **2 puntos** = Cada examen final aprobado\n\n");
+
+      resultado.append("**Ejemplos:**\n");
+      resultado.append("• 4 materias cursadas y aprobadas = 4 puntos ✅\n");
+      resultado.append("• 2 materias cursadas + 1 final aprobado = 4 puntos ✅\n");
+      resultado.append("• 2 finales aprobados = 4 puntos ✅\n\n");
+
+      // Extraer fechas dinámicamente del calendario académico
+      FechasInscripcionMaterias fechas = extraerFechasDelCalendarioInscripciones();
+
+      resultado.append("📝 **PERÍODOS DE INSCRIPCIÓN 2025:**\n\n");
+
+      // Mostrar fechas para asignaturas regulares
+      resultado.append("🟢 **Para asignaturas en estado REGULAR:**\n");
+
+      // Primer cuatrimestre
+      if (fechas.fechaInicioRegular != null && fechas.fechaFinRegular != null) {
+        resultado.append("• **").append(fechas.fechaInicioRegular).append(" al ").append(fechas.fechaFinRegular)
+            .append("** - Primer cuatrimestre\n");
+        resultado.append(
+            "  📋 **Más información:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-regular-3/)\n\n");
+      } else {
+        resultado.append("• **24 al 28 de febrero de 2025** - Primer cuatrimestre\n");
+        resultado.append(
+            "  📋 **Más información:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-regular-3/)\n\n");
+      }
+
+      // Segundo cuatrimestre
+      if (fechas.fechaInicioRegularSegundo != null && fechas.fechaFinRegularSegundo != null) {
+        resultado.append("• **").append(fechas.fechaInicioRegularSegundo).append(" al ")
+            .append(fechas.fechaFinRegularSegundo).append("** - Segundo cuatrimestre\n");
+        resultado.append(
+            "  📋 **Más información:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-regular-4/)\n\n");
+      } else {
+        resultado.append("• **4 al 8 de agosto de 2025** - Segundo cuatrimestre\n");
+        resultado.append(
+            "  📋 **Más información:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-regular-4/)\n\n");
+      }
+
+      // Mostrar fechas para asignaturas pendientes/condicionales
+      resultado.append("🟡 **Para asignaturas en estado PENDIENTE/CONDICIONALES:**\n");
+
+      // Primer cuatrimestre
+      if (fechas.fechaInicioPendientes != null && fechas.fechaFinPendientes != null) {
+        resultado.append("• **").append(fechas.fechaInicioPendientes).append(" al ").append(fechas.fechaFinPendientes)
+            .append("** - Primer cuatrimestre\n");
+        resultado.append(
+            "  📋 **Más información:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-pendientes-condicionales-2/)\n\n");
+      } else {
+        resultado.append("• **3 al 7 de marzo de 2025** - Primer cuatrimestre\n");
+        resultado.append(
+            "  📋 **Más información:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-pendientes-condicionales-2/)\n\n");
+      }
+
+      // Segundo cuatrimestre
+      if (fechas.fechaInicioPendientesSegundo != null && fechas.fechaFinPendientesSegundo != null) {
+        resultado.append("• **").append(fechas.fechaInicioPendientesSegundo).append(" al ")
+            .append(fechas.fechaFinPendientesSegundo).append("** - Segundo cuatrimestre\n");
+        resultado.append(
+            "  📋 **Más información:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-pendiente-condicionales-2/)\n\n");
+      } else {
+        resultado.append("• **11 al 15 de agosto de 2025** - Segundo cuatrimestre\n");
+        resultado.append(
+            "  📋 **Más información:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-pendiente-condicionales-2/)\n\n");
+      }
+
+      resultado.append("**⚠️ IMPORTANTE para inscripciones PENDIENTES/CONDICIONALES:**\n");
+      resultado
+          .append("• El último día hábil del mes correspondiente se efectuarán los controles de correlatividades\n");
+      resultado.append("• Si no cumplís con las condiciones requeridas, la inscripción será rechazada\n");
+      resultado.append("• Si no figurás en los listados oficiales definitivos, NO podrás cursar la/s asignatura/s\n\n");
+
+      resultado.append("🖥️ **Sistema de inscripción:** [SIU-Guaraní](https://g3w3.unnoba.edu.ar/g3w3/)\n");
+      resultado
+          .append("📅 **Calendario completo:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendario/)\n\n");
+
+      resultado.append("**📋 Todas las inscripciones se realizan ONLINE desde la interfaz Guaraní 3W**\n");
+
+      return resultado.toString();
+
+    } catch (Exception e) {
+      System.err.println("Error extrayendo información detallada de inscripciones: " + e.getMessage());
+      return extraerFechasInscripcionMateriasDetalladaGenerico();
+    }
+  }
+
+  // Método de fallback para información detallada
+  private String extraerFechasInscripcionMateriasDetalladaGenerico() {
+    return """
+        📚 **INSCRIPCIÓN A MATERIAS - INFORMACIÓN DETALLADA**
+
+        Para inscribirte a las materias en la UNNOBA, debés acceder al sistema SIU-Guaraní durante el período de inscripción establecido en el calendario académico oficial.
+
+        **Requisitos importantes:**
+        ✅ Tener condición de alumno regular
+        ✅ Respetar las fechas establecidas en el calendario
+        ✅ Verificar correlatividades de las materias
+        ✅ Contar con tu usuario y contraseña institucional
+
+        **💡 Sistema de Regularidad:**
+        La regularidad se verifica a fines de marzo de cada año. Para mantener la condición de alumno regular necesitás sumar al menos **4 puntos**:
+
+        • **1 punto** = Cada materia cursada y aprobada
+        • **2 puntos** = Cada examen final aprobado
+
+        **Ejemplos:**
+        • 4 materias cursadas y aprobadas = 4 puntos ✅
+        • 2 materias cursadas + 1 final aprobado = 4 puntos ✅
+        • 2 finales aprobados = 4 puntos ✅
+
+        📝 **PERÍODOS DE INSCRIPCIÓN 2025:**
+
+        🟢 **Para asignaturas en estado REGULAR:**
+        • **24 al 28 de febrero de 2025** - Primer cuatrimestre
+          📋 **Más información:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-regular-3/)
+
+        • **4 al 8 de agosto de 2025** - Segundo cuatrimestre
+          📋 **Más información:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-regular-4/)
+
+        🟡 **Para asignaturas en estado PENDIENTE/CONDICIONALES:**
+        • **3 al 7 de marzo de 2025** - Primer cuatrimestre
+          📋 **Más información:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-pendientes-condicionales-2/)
+
+        • **11 al 15 de agosto de 2025** - Segundo cuatrimestre
+          📋 **Más información:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendarioacademico/inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-pendiente-condicionales-2/)
+
+        **⚠️ IMPORTANTE para inscripciones PENDIENTES/CONDICIONALES:**
+        • El último día hábil del mes correspondiente se efectuarán los controles de correlatividades
+        • Si no cumplís con las condiciones requeridas, la inscripción será rechazada
+        • Si no figurás en los listados oficiales definitivos, NO podrás cursar la/s asignatura/s
+
+        🖥️ **Sistema de inscripción:** [SIU-Guaraní](https://g3w3.unnoba.edu.ar/g3w3/)
+        📅 **Calendario completo:** [Calendario Académico](https://elegi.unnoba.edu.ar/calendario/)
+
+        **📋 Todas las inscripciones se realizan ONLINE desde la interfaz Guaraní 3W**
+
+        ⚠️ **Nota:** Fechas de referencia. Consultá el calendario académico para información actualizada.
+        """;
   }
 }
