@@ -644,7 +644,6 @@ public class EnlacesInscripciones {
     String fechaInicioInscripcion;
     String fechaInicioExamen;
     String fechaFinExamen;
-    String urlCalendario;
   }
 
   // Método para procesar y estructurar las fechas del mes específico
