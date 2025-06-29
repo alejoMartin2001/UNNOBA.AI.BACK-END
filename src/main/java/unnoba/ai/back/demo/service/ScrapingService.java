@@ -110,4 +110,11 @@ public class ScrapingService {
       }
     }
   }
+
+  /**
+   * Obtiene las fechas de exámenes para un mes específico.
+   */
+  public String obtenerFechasExamenesPorMes(String mes) throws IOException {
+    return ScrapingUtils.extraerFechasExamenesPorMes(mes);
+  }
 }

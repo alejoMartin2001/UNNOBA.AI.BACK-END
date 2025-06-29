@@ -12,6 +12,16 @@ public class UnnobaUrls {
   public static final String CALENDARIO_URL = BASE_ELEGI_URL + "/calendario/";
   public static final String INSCRIPCION_URL = BASE_ELEGI_URL + "/inscripcion/";
 
+  // URL de inscripción a materias
+  public static final String INSCRIPCION_REGULARES_1C = CALENDARIO_URL
+      + "inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-regular-3/";
+  public static final String INSCRIPCION_PENDIENTES_1C = CALENDARIO_URL
+      + "inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-pendientes-condicionales-2/";
+  public static final String INSCRIPCION_REGULARES_2C = CALENDARIO_URL
+      + "inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-regular-4/";
+  public static final String INSCRIPCION_PENDIENTES_2C = CALENDARIO_URL
+      + "inscripciones-asignaturas-de-1o-a-5o-ano-para-asignaturas-en-estado-pendiente-condicionales-2/";
+
   // Distribución de aulas
   public static final String DISTRIBUCION_AULAS_JUNIN = BASE_UNNOBA_URL + "/distribucion-aulas/junin";
   public static final String DISTRIBUCION_AULAS_PERGAMINO = BASE_UNNOBA_URL + "/distribucion-aulas/pergamino";

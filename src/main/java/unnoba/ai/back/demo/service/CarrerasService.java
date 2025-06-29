@@ -136,27 +136,40 @@ public class CarrerasService {
   // Información general
   public String obtenerRegularidadEstudiantes() {
     return """
-        💡 **SISTEMA DE REGULARIDAD - UNNOBA**
+        ✅ **REGULARIDAD DE ESTUDIANTES - UNNOBA**
 
-        **¿Cuándo se verifica la regularidad?**
-        La regularidad se verifica a fines de marzo de cada año. Para mantener la condición de alumno regular necesitás sumar al menos **4 puntos**.
+        **¿Necesito ser alumno regular para inscribirme a materias?**
+        Sí, para poder inscribirte a materias es necesario tener la condición de alumno regular.
 
-        **¿Cómo se suman puntos?**
-        • **1 punto** = Cada materia cursada y aprobada
-        • **2 puntos** = Cada examen final aprobado
+        **¿Cuándo y cómo se verifica la regularidad?**
+        La regularidad se verifica a fines de marzo de cada año. Por ejemplo, la regularidad 2025 se evalúa considerando el período comprendido entre marzo de 2024 y marzo de 2025.
+        Para mantener la regularidad, es necesario sumar al menos **4 puntos** durante ese período.
 
-        **Ejemplos para mantener la regularidad:**
-        • Cursar y aprobar 4 materias = 4 puntos ✅
-        • Cursar 2 materias + aprobar 1 final = 4 puntos ✅
-        • Aprobar 2 exámenes finales = 4 puntos ✅
+        **¿Cómo se suman puntos para mantener la regularidad?**
+        Podés sumar puntos de las siguientes maneras:
+        • Cada materia cursada y aprobada suma **1 punto**.
+        • Cada examen final aprobado suma **2 puntos**.
+        • Se pueden combinar cursadas y finales, siempre que se llegue a 4 puntos como mínimo.
+
+        *Ejemplos:*
+        - Cursar y aprobar 4 materias = 4 puntos.
+        - Cursar 2 materias (2 puntos) y aprobar 1 final (2 puntos) = 4 puntos.
+        - Aprobar 2 exámenes finales = 4 puntos.
 
         **¿Qué pasa si no llego a los 4 puntos?**
-        Si no alcanzás los 4 puntos requeridos, perdés la condición de alumno regular, pero podés seguir cursando reinscribiéndote a la carrera.
+        Si no alcanzás los 4 puntos requeridos en el período correspondiente, perdés la condición de alumno regular.
+
+        **¿Puedo seguir cursando si pierdo la regularidad?**
+        Sí, podés seguir cursando. Para eso debés **reinscribirte a la carrera**.
+        En ese caso, mantenés todas las materias cursadas y aprobadas anteriormente.
 
         **¿Cuántas veces puedo reinscribirme?**
-        Podés reinscribirte hasta 3 veces. Si superás ese límite, perdés todas las materias aprobadas.
-
-        🔗 **Sistema SIU-Guaraní:** https://g3w3.unnoba.edu.ar/g3w3/
+        Podés reinscribirte hasta **3 veces**.
+        Si superás ese límite, perdés todas las materias aprobadas y tenés que inscribirte nuevamente desde cero en la carrera.
         """;
+  }
+
+  public String obtenerInformacionGeneral() {
+    return "Soy un asistente virtual de la UNNOBA, actualmente en desarrollo. Mi propósito es ayudarte a resolver dudas sobre la universidad, proporcionando información sobre carreras, trámites, fechas importantes y otros temas de interés. ¡No dudes en preguntar! 😊";
   }
 }

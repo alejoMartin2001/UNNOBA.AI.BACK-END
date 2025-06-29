@@ -21,12 +21,6 @@ public class ExamenesController {
     return examenesService.obtenerInformacionExamenesFinales();
   }
 
-  // Endpoint específico para consultas de exámenes por mes
-  @GetMapping("/examenes-mes/{mes}")
-  public String getExamenesPorMes(@PathVariable String mes) throws IOException {
-    return examenesService.extraerExamenesPorMes(mes);
-  }
-
   // Endpoints específicos para meses de exámenes
   @GetMapping("/examenes-enero")
   public String getExamenesEnero() throws IOException {

@@ -23,7 +23,7 @@ public class CalendarioService {
    * Obtiene información completa del calendario académico
    */
   public String obtenerInformacionCalendario() throws IOException {
-    Set<String> informacionExtraida = scrapingService.buscarInformacionConProfundidad(
+    scrapingService.buscarInformacionConProfundidad(
         UnnobaUrls.CALENDARIO_URL, ScrapingConstants.MAX_SEARCH_DEPTH);
 
     StringBuilder info = new StringBuilder();
@@ -39,7 +39,7 @@ public class CalendarioService {
    * Extrae fechas específicas según el tipo de consulta
    */
   public String extraerFechasEspecificas(String tipoConsulta) throws IOException {
-    Set<String> informacionExtraida = scrapingService.buscarInformacionConProfundidad(
+    scrapingService.buscarInformacionConProfundidad(
         UnnobaUrls.CALENDARIO_URL, ScrapingConstants.MAX_SEARCH_DEPTH);
 
     StringBuilder resultado = new StringBuilder();
@@ -55,8 +55,15 @@ public class CalendarioService {
    */
   public String extraerFechasInscripcionMaterias() throws IOException {
     StringBuilder respuesta = new StringBuilder();
-    respuesta.append("📝 **FECHAS DE INSCRIPCIÓN A MATERIAS - UNNOBA**\n\n");
-    respuesta.append("🔗 **Sistema SIU-Guaraní:** ").append(UnnobaUrls.BASE_SIU_URL).append("\n");
+    respuesta.append("📝 **FECHAS DE INSCRIPCIÓN A MATERIAS - 2025**\n\n");
+    respuesta.append(
+        "La inscripción se realiza a través del SIU-Guaraní. A continuación se detallan las fechas para cada cuatrimestre:\n\n");
+
+    respuesta.append(extraerFechasInscripcionPrimerCuatrimestre());
+    respuesta.append("\n");
+    respuesta.append(extraerFechasInscripcionSegundoCuatrimestre());
+    respuesta.append("\n\n---\n");
+    respuesta.append("🔗 **Acceso al sistema:** ").append(UnnobaUrls.BASE_SIU_URL).append("\n");
     respuesta.append("📅 **Calendario completo:** ").append(UnnobaUrls.CALENDARIO_URL);
 
     return respuesta.toString();
@@ -66,32 +73,46 @@ public class CalendarioService {
    * Extrae fechas específicas para primer cuatrimestre
    */
   public String extraerFechasInscripcionPrimerCuatrimestre() throws IOException {
-    return extraerFechasInscripcionMaterias(); // Reutiliza la lógica existente
+    StringBuilder respuesta = new StringBuilder();
+    respuesta.append("**PRIMER CUATRIMESTRE:**\n");
+
+    try {
+      FechasInscripcionDto regular = ScrapingUtils.extraerFechasInscripcion(UnnobaUrls.INSCRIPCION_REGULARES_1C);
+      String regularDates = ScrapingUtils.formatDateRange(regular.getRangoFechas());
+      respuesta.append("• **Regulares:** ").append(regularDates).append("\n");
+
+      FechasInscripcionDto pendientes = ScrapingUtils.extraerFechasInscripcion(UnnobaUrls.INSCRIPCION_PENDIENTES_1C);
+      String pendientesDates = ScrapingUtils.formatDateRange(pendientes.getRangoFechas());
+      respuesta.append("• **Pendientes/Condicionales:** ").append(pendientesDates).append("\n");
+
+    } catch (IOException e) {
+      respuesta.append("• No se pudo obtener la información detallada. Por favor, consulte el calendario académico.\n");
+    }
+    return respuesta.toString();
   }
 
   /**
    * Extrae fechas específicas para segundo cuatrimestre
    */
   public String extraerFechasInscripcionSegundoCuatrimestre() throws IOException {
-    FechasInscripcionDto fechas = extraerFechasDelCalendarioInscripciones();
-
     StringBuilder respuesta = new StringBuilder();
-    respuesta.append("📝 **FECHAS DE INSCRIPCIÓN - SEGUNDO CUATRIMESTRE**\n\n");
+    respuesta.append("**SEGUNDO CUATRIMESTRE:**\n");
+    try {
+      FechasInscripcionDto regular = ScrapingUtils.extraerFechasInscripcion(UnnobaUrls.INSCRIPCION_REGULARES_2C);
+      String regularDates = ScrapingUtils.formatDateRange(regular.getRangoFechas());
+      respuesta.append("• **Regulares:** ").append(regularDates).append("\n");
 
-    if (fechas.getFechaInicioSegundoCuatrimestre() != null || fechas.getFechaFinSegundoCuatrimestre() != null) {
-      respuesta.append("**📚 SEGUNDO CUATRIMESTRE - Materias Regulares:**\n");
-      if (fechas.getFechaInicioSegundoCuatrimestre() != null) {
-        respuesta.append("• **Inicio:** ").append(fechas.getFechaInicioSegundoCuatrimestre()).append("\n");
+      FechasInscripcionDto pendientes = ScrapingUtils.extraerFechasInscripcion(UnnobaUrls.INSCRIPCION_PENDIENTES_2C);
+      String pendientesDates = ScrapingUtils.formatDateRange(pendientes.getRangoFechas());
+      respuesta.append("• **Pendientes/Condicionales:** ").append(pendientesDates).append("\n");
+
+      if (pendientes.getNotas() != null && !pendientes.getNotas().isEmpty()) {
+        respuesta.append(
+            "  *Nota para condicionales:* Las inscripciones serán controladas al final del mes. Si no se cumplen los requisitos, serán rechazadas.\n");
       }
-      if (fechas.getFechaFinSegundoCuatrimestre() != null) {
-        respuesta.append("• **Fin:** ").append(fechas.getFechaFinSegundoCuatrimestre()).append("\n");
-      }
-      respuesta.append("\n");
+    } catch (IOException e) {
+      respuesta.append("• No se pudo obtener la información detallada. Por favor, consulte el calendario académico.\n");
     }
-
-    respuesta.append("🔗 **Sistema SIU-Guaraní:** ").append(UnnobaUrls.BASE_SIU_URL).append("\n");
-    respuesta.append("📅 **Calendario completo:** ").append(UnnobaUrls.CALENDARIO_URL);
-
     return respuesta.toString();
   }
 
@@ -269,14 +290,12 @@ public class CalendarioService {
         .collect(Collectors.toList());
   }
 
-  private FechasInscripcionDto extraerFechasDelCalendarioInscripciones() throws IOException {
-    FechasInscripcionDto fechas = new FechasInscripcionDto();
+  private String extraerFechasDelCalendarioInscripciones() throws IOException {
+    String fechas = "";
 
     // Implementar lógica de extracción de fechas específicas
     // Por ahora retorna un DTO básico
-    fechas.setFechaInicioRegular("Consultar calendario académico");
-    fechas.setFechaFinRegular("Consultar calendario académico");
-    fechas.setUrlRegular(UnnobaUrls.CALENDARIO_URL);
+    fechas = "Consultar calendario académico";
 
     return fechas;
   }

@@ -5,8 +5,10 @@ import unnoba.ai.back.demo.service.CarrerasService;
 import unnoba.ai.back.demo.service.CalendarioService;
 import unnoba.ai.back.demo.service.ExamenesService;
 import unnoba.ai.back.demo.service.DistribucionAulasService;
+import unnoba.ai.back.demo.constants.UnnobaUrls;
 
 import java.io.IOException;
+import java.util.Set;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -212,78 +214,6 @@ public class UnnobaScraperController {
                 "\n🔗 **Sistema SIU-Guaraní:** https://g3w3.unnoba.edu.ar/g3w3/";
     }
 
-    // Endpoint específico para consultas de exámenes por mes
-    @GetMapping("/examenes-mes/{mes}")
-    public String getExamenesPorMes(@PathVariable String mes) throws IOException {
-        return examenesService.extraerExamenesPorMes(mes);
-    }
-
-    // Endpoints específicos para meses de exámenes
-    @GetMapping("/examenes-enero")
-    public String getExamenesEnero() throws IOException {
-        return examenesService.extraerExamenesPorMes("enero");
-    }
-
-    @GetMapping("/examenes-febrero")
-    public String getExamenesFebrero() throws IOException {
-        return examenesService.extraerExamenesPorMes("febrero");
-    }
-
-    @GetMapping("/examenes-marzo")
-    public String getExamenesMarzo() throws IOException {
-        return examenesService.extraerExamenesPorMes("marzo");
-    }
-
-    @GetMapping("/examenes-abril")
-    public String getExamenesAbril() throws IOException {
-        return examenesService.extraerExamenesPorMes("abril");
-    }
-
-    @GetMapping("/examenes-mayo")
-    public String getExamenesMayo() throws IOException {
-        return examenesService.extraerExamenesPorMes("mayo");
-    }
-
-    @GetMapping("/examenes-junio")
-    public String getExamenesJunio() throws IOException {
-        return examenesService.extraerExamenesPorMes("junio");
-    }
-
-    @GetMapping("/examenes-julio")
-    public String getExamenesJulio() throws IOException {
-        return examenesService.extraerExamenesPorMes("julio");
-    }
-
-    @GetMapping("/examenes-agosto")
-    public String getExamenesAgosto() throws IOException {
-        return examenesService.extraerExamenesPorMes("agosto");
-    }
-
-    @GetMapping("/examenes-septiembre")
-    public String getExamenesSeptiembre() throws IOException {
-        return examenesService.extraerExamenesPorMes("septiembre");
-    }
-
-    @GetMapping("/examenes-octubre")
-    public String getExamenesOctubre() throws IOException {
-        return examenesService.extraerExamenesPorMes("octubre");
-    }
-
-    @GetMapping("/examenes-noviembre")
-    public String getExamenesNoviembre() throws IOException {
-        return examenesService.extraerExamenesPorMes("noviembre");
-    }
-
-    @GetMapping("/examenes-diciembre")
-    public String getExamenesDiciembre() throws IOException {
-        return examenesService.extraerExamenesPorMes("diciembre");
-    }
-
-    @GetMapping("/calendario-academico")
-    public String getCalendarioAcademico() throws IOException {
-        return calendarioService.obtenerInformacionCalendario();
-    }
-
     // Endpoint para distribución de aulas específica
     @GetMapping("/distribucion-aulas")
     public String getDistribucionAulas(@RequestParam(required = false) String consulta) {
@@ -293,6 +223,14 @@ public class UnnobaScraperController {
     @GetMapping("/regularidad-estudiantes")
     public String getRegularidadEstudiantes() {
         return carrerasService.obtenerRegularidadEstudiantes();
+    }
+
+    @GetMapping("/informacion-calendario")
+    public String getInformacionCalendario() {
+        return "📅 **CALENDARIO ACADÉMICO - UNNOBA**\n\n" +
+                "Para conocer todas las fechas importantes, como inicios de cuatrimestre, exámenes, feriados y recesos, te recomendamos consultar el calendario académico oficial.\n\n"
+                +
+                "🔗 **Ver calendario completo:** " + UnnobaUrls.CALENDARIO_URL;
     }
 
     @GetMapping("/feriados")
@@ -363,5 +301,71 @@ public class UnnobaScraperController {
     @GetMapping("/consultar")
     public String consultarEvento(@RequestParam String consulta) throws IOException {
         return calendarioService.consultarFechaEspecifica(consulta);
+    }
+
+    // Endpoints específicos para meses de exámenes
+    @GetMapping("/examenes-enero")
+    public String getExamenesEnero() throws IOException {
+        return examenesService.extraerExamenesPorMes("enero");
+    }
+
+    @GetMapping("/examenes-febrero")
+    public String getExamenesFebrero() throws IOException {
+        return examenesService.extraerExamenesPorMes("febrero");
+    }
+
+    @GetMapping("/examenes-marzo")
+    public String getExamenesMarzo() throws IOException {
+        return examenesService.extraerExamenesPorMes("marzo");
+    }
+
+    @GetMapping("/examenes-abril")
+    public String getExamenesAbril() throws IOException {
+        return examenesService.extraerExamenesPorMes("abril");
+    }
+
+    @GetMapping("/examenes-mayo")
+    public String getExamenesMayo() throws IOException {
+        return examenesService.extraerExamenesPorMes("mayo");
+    }
+
+    @GetMapping("/examenes-junio")
+    public String getExamenesJunio() throws IOException {
+        return examenesService.extraerExamenesPorMes("junio");
+    }
+
+    @GetMapping("/examenes-julio")
+    public String getExamenesJulio() throws IOException {
+        return examenesService.extraerExamenesPorMes("julio");
+    }
+
+    @GetMapping("/examenes-agosto")
+    public String getExamenesAgosto() throws IOException {
+        return examenesService.extraerExamenesPorMes("agosto");
+    }
+
+    @GetMapping("/examenes-septiembre")
+    public String getExamenesSeptiembre() throws IOException {
+        return examenesService.extraerExamenesPorMes("septiembre");
+    }
+
+    @GetMapping("/examenes-octubre")
+    public String getExamenesOctubre() throws IOException {
+        return examenesService.extraerExamenesPorMes("octubre");
+    }
+
+    @GetMapping("/examenes-noviembre")
+    public String getExamenesNoviembre() throws IOException {
+        return examenesService.extraerExamenesPorMes("noviembre");
+    }
+
+    @GetMapping("/examenes-diciembre")
+    public String getExamenesDiciembre() throws IOException {
+        return examenesService.extraerExamenesPorMes("diciembre");
+    }
+
+    @GetMapping("/calendario-academico")
+    public String getCalendarioAcademico() throws IOException {
+        return calendarioService.obtenerInformacionCalendario();
     }
 }
